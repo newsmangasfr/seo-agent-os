@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Agent OS — Pilotage SEO par IA pour vos sites manga & séries</title>
+    <meta name="description" content="SEO Agent OS : le cockpit IA qui analyse vos sites WordPress, crée des articles optimisés, surveille Google Search Console et Bing. Conçu pour l'écosystème manga, anime et séries.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== LANDING SPECIFIQUE ===== */
+        .landing-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 40px; background: rgba(7,7,12,.55); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+        .landing-nav .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:15px; }
+        .landing-nav .links { display:flex; gap:26px; font-size:13.5px; }
+        .landing-nav .links a { color: var(--text-secondary); text-decoration:none; transition: color .2s; }
+        .landing-nav .links a:hover { color: var(--text-primary); }
+
+        .hero { padding: 150px 40px 90px; text-align:center; position:relative; }
+        .hero-badge {
+            display:inline-flex; align-items:center; gap:8px; padding:7px 16px;
+            border-radius:30px; font-size:12.5px; color:var(--accent-green);
+            background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.25);
+            margin-bottom:26px;
+        }
+        .hero h1 {
+            font-size: clamp(38px, 6vw, 68px); font-weight: 800; line-height: 1.08;
+            letter-spacing: -1.5px; max-width: 900px; margin: 0 auto 24px;
+        }
+        .hero h1 .grad {
+            background: linear-gradient(135deg, #8b5cf6 20%, #3b82f6 55%, #10b981 90%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero .sub { font-size: 18px; color: var(--text-secondary); max-width: 640px; margin: 0 auto 36px; line-height: 1.65; }
+        .hero-cta { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+        .btn-hero {
+            padding: 14px 30px; border-radius: 14px; font-size: 15px; font-weight: 700;
+            cursor:pointer; text-decoration:none; transition: all .25s; display:inline-flex; align-items:center; gap:10px;
+        }
+        .btn-hero.p { background: linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; box-shadow: 0 10px 40px rgba(139,92,246,.4); }
+        .btn-hero.p:hover { transform: translateY(-3px); box-shadow: 0 16px 50px rgba(139,92,246,.55); }
+        .btn-hero.s { background: var(--bg-glass); color: var(--text-primary); border: 1px solid var(--border-light); }
+        .btn-hero.s:hover { border-color: var(--accent-purple); }
+
+        /* 3D cube flottant */
+        .cube-scene { perspective: 1000px; margin: 70px auto 0; width: 120px; height: 120px; }
+        .cube {
+            width: 120px; height: 120px; position: relative; transform-style: preserve-3d;
+            animation: cubeSpin 14s linear infinite;
+        }
+        @keyframes cubeSpin { from { transform: rotateX(-20deg) rotateY(0);} to { transform: rotateX(-20deg) rotateY(360deg);} }
+        .cube-face {
+            position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+            font-size: 34px; border-radius: 14px;
+            background: rgba(139,92,246,.08); border:1px solid rgba(139,92,246,.35);
+            box-shadow: inset 0 0 40px rgba(139,92,246,.1);
+            backdrop-filter: blur(4px);
+        }
+        .cube-face:nth-child(1){ transform: translateZ(60px); }
+        .cube-face:nth-child(2){ transform: rotateY(90deg) translateZ(60px); }
+        .cube-face:nth-child(3){ transform: rotateY(180deg) translateZ(60px); }
+        .cube-face:nth-child(4){ transform: rotateY(-90deg) translateZ(60px); }
+        .cube-face:nth-child(5){ transform: rotateX(90deg) translateZ(60px); }
+        .cube-face:nth-child(6){ transform: rotateX(-90deg) translateZ(60px); }
+
+        .section-pad { padding: 80px 40px; max-width: 1150px; margin: 0 auto; }
+        .kicker { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--accent-purple); font-weight:700; margin-bottom:12px; }
+        .h2 { font-size: clamp(26px, 3.6vw, 40px); font-weight:800; letter-spacing:-.6px; line-height:1.15; margin-bottom:18px; }
+        .lead { color: var(--text-secondary); font-size:16.5px; line-height:1.75; max-width:760px; }
+
+        .cards3 { display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; margin-top:44px; }
+        .fcard {
+            padding: 30px; border-radius: 20px; background: var(--bg-card);
+            border: 1px solid var(--border); backdrop-filter: blur(14px);
+            transition: transform .3s ease-out, box-shadow .3s, border-color .3s;
+        }
+        .fcard:hover { border-color: rgba(139,92,246,.35); box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 50px rgba(139,92,246,.07); }
+        .fcard .ic { font-size: 30px; margin-bottom: 16px; display:inline-flex; width:56px; height:56px; border-radius:16px; align-items:center; justify-content:center;
+            background: rgba(139,92,246,.1); box-shadow: inset 0 0 0 1px rgba(139,92,246,.25); }
+        .fcard h3 { font-size: 17px; margin-bottom: 10px; }
+        .fcard p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+        /* timeline nouveautés IA */
+        .news-item { display:flex; gap:18px; padding:22px 0; border-bottom:1px solid var(--border); }
+        .news-item:last-child { border-bottom:none; }
+        .news-date { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent-blue); min-width:86px; padding-top:3px; }
+        .news-item h4 { font-size:15.5px; margin-bottom:6px; }
+        .news-item p { font-size:13.5px; color:var(--text-secondary); line-height:1.65; }
+
+        .cta-final { text-align:center; padding: 90px 40px 110px; }
+        .cta-final .h2 { margin-bottom: 14px; }
+
+        footer { padding: 34px 40px; border-top:1px solid var(--border); text-align:center; font-size:12.5px; color:var(--text-muted); }
+        footer a { color: var(--text-secondary); text-decoration:none; }
+    </style>
+</head>
+<body>
+    <nav class="landing-nav">
+        <div class="brand"><span class="logo-orb"></span>SEO Agent <b>OS</b></div>
+        <div class="links">
+            <a href="#fonctionnalites">Fonctionnalités</a>
+            <a href="#google">Google &amp; Bing</a>
+            <a href="#ia">Nouveautés IA</a>
+        </div>
+        <a href="/dashboard.html" class="btn-secondary" style="text-decoration:none;">Ouvrir le cockpit →</a>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <header class="hero">
+        <div class="hero-badge"><span class="status-dot"></span> Propulsé par IA — connecté à vos sites WordPress</div>
+        <h1>Le cockpit <span class="grad">SEO nouvelle génération</span> pour vos sites manga, anime &amp; séries</h1>
+        <p class="sub">SEO Agent OS analyse vos sites WordPress, génère des articles optimisés en français, surveille vos positions Google Search Console et Bing, et publie pour vous — pendant que vous vous concentrez sur votre contenu.</p>
+        <div class="hero-cta">
+            <a href="/dashboard.html" class="btn-hero p">🚀 Accéder au dashboard</a>
+            <a href="#fonctionnalites" class="btn-hero s">Découvrir les fonctionnalités</a>
+        </div>
+        <div class="cube-scene"><div class="cube">
+            <div class="cube-face">📈</div><div class="cube-face">🤖</div>
+            <div class="cube-face">🔍</div><div class="cube-face">✍️</div>
+            <div class="cube-face">🌐</div><div class="cube-face">⚡</div>
+        </div></div>
+    </header>
+
+    <!-- ===== FONCTIONNALITES ===== -->
+    <section class="section-pad" id="fonctionnalites">
+        <div class="kicker">Fonctionnalités</div>
+        <h2 class="h2">Tout votre SEO, réuni dans un seul cockpit</h2>
+        <p class="lead">Fini les tableaux éparpillés : SEO Agent OS centralise vos sites, vos articles et vos performances dans une interface unique, animée en temps réel, pensée pour la vitesse de lecture comme pour la précision des données.</p>
+        <div class="cards3">
+            <div class="fcard tilt3d"><div class="ic">🌐</div><h3>Sites &amp; Connexions</h3><p>Connectez vos sites WordPress en 30 secondes avec un mot de passe d'application. Statut de connexion en direct, test de l'API, gestion centralisée de newsmangas.com, newsseries.fr et de tous vos projets.</p></div>
+            <div class="fcard tilt3d"><div class="ic">✍️</div><h3>Articles générés par IA</h3><p>Des articles structurés H1/H2/H3, dates France uniquement, maillage interne depuis votre sitemap, et un pack SEO Rank Math complet : titre 50-60 caractères, meta description 150-160, slug propre.</p></div>
+            <div class="fcard tilt3d"><div class="ic">📊</div><h3>Mission Control</h3><p>Un dashboard temps réel : articles créés, publiés, brouillons, pipeline de création animé (Recherche → Planification → Rédaction → Optimisation) et cartes 3D réactives à la souris.</p></div>
+            <div class="fcard tilt3d"><div class="ic">🔗</div><h3>Maillage interne intelligent</h3><p>L'agent scrappe votre sitemap à chaque article et insère naturellement 3 à 5 liens internes pertinents, avec des ancres en français — exactement ce que Google adore voir.</p></div>
+            <div class="fcard tilt3d"><div class="ic">🛡️</div><h3>SEO safe pour vos money sites</h3><p>Aucune tool d'indexation risquée, aucun backlink toxique : uniquement des pratiques naturelles, conformes aux guidelines, pour protéger vos sites qui rapportent.</p></div>
+            <div class="fcard tilt3d"><div class="ic">⚡</div><h3>Publication en un clic</h3><p>Brouillon ou publication directe sur WordPress via l'API REST native, avec image à la une, catégories et méta SEOPress. Vérification du post publié incluse.</p></div>
+        </div>
+    </section>
+
+    <!-- ===== GOOGLE / BING ===== -->
+    <section class="section-pad" id="google">
+        <div class="kicker">Google Search Console &amp; Bing Webmaster</div>
+        <h2 class="h2">Vos données de recherche, sans quitter le cockpit</h2>
+        <p class="lead">Connectez vos properties GSC et vos sites Bing Webmaster Tools une fois, puis suivez impressions, clics, CTR et position moyenne par page — directement dans le dashboard. Quand Google annonce une évolution de ses recommandations, c'est ici que vous l'appliquez à vos contenus, article par article.</p>
+        <div class="cards3">
+            <div class="fcard tilt3d"><div class="ic">🔎</div><h3>Google Search Console</h3><p>Clé de compte de service importée en un clic (fichier JSON). Suivi des requêtes qui amènent du trafic, détection des pages en perte de position, opportunités de contenu.</p></div>
+            <div class="fcard tilt3d"><div class="ic">🅱️</div><h3>Bing Webmaster Tools</h3><p>Clé API enregistrée en 10 secondes. Soumission IndexNow pour accélérer l'indexation de vos nouveaux articles — par la porte officielle Microsoft, sans aucun outil risqué.</p></div>
+            <div class="fcard tilt3d"><div class="ic">🧭</div><h3>Recommandations Google appliquées</h3><p>Contenu utile, expérience page, E-E-A-T : le cockpit traduit les guidelines officielles en checklist concrète pour chaque article de vos sites manga et séries.</p></div>
+        </div>
+    </section>
+
+    <!-- ===== NOUVEAUTES IA ===== -->
+    <section class="section-pad" id="ia">
+        <div class="kicker">Veille IA &amp; SEO</div>
+        <h2 class="h2">Ce que l'IA change pour le SEO en ce moment</h2>
+        <p class="lead">Le paysage bouge vite : recherche générative, AI Overviews, systèmes de recommandation de Google. Voici la lecture que SEO Agent OS en fait pour vos sites — et comment l'agent s'adapte en continu.</p>
+        <div class="fcard" style="margin-top:36px;">
+            <div class="news-item">
+                <span class="news-date">2026</span>
+                <div><h4>AI Overviews et clics organiques : l'adaptation est vitale</h4><p>Les réponses générées par Google grignotent les clics sur les requêtes informationnelles. La riposte est éditoriale : contenus à forte valeur ajoutée (dates officielles France, analyses de spoilers, guides d'épisodes), données que l'IA ne peut pas remplacer, et pages pensées pour la clicabilité.</p></div>
+            </div>
+            <div class="news-item">
+                <span class="news-date">2026</span>
+                <div><h4>La recherche générative récompense le maillage interne</h4><p>Les systèmes de recommandation de Google s'appuient plus que jamais sur la structure du site. Chaque article produit par SEO Agent OS est relié à 3-5 pages existantes de votre sitemap : votre taxonomie devient une force pour la découverte par les robots comme pour les lecteurs.</p></div>
+            </div>
+            <div class="news-item">
+                <span class="news-date">2026</span>
+                <div><h4>E-E-A-T pour les sites média : l'expérience avant tout</h4><p>Google valorise l'expérience première : vos articles de dates de sortie et analyses d'épisodes sont signés, sourcés (Crunchyroll, éditeurs), localisés France. L'agent applique cette grille de lecture à chaque contenu.</p></div>
+            </div>
+            <div class="news-item">
+                <span class="news-date">2026</span>
+                <div><h4>Agents IA autonomes : le SEO devient un flux, pas une tâche</h4><p>La tendance des agents comme Hermes : surveiller, rédiger, publier, mesurer en boucle continue. SEO Agent OS applique exactement ce modèle — votre agent ne dort pas, il veille sur vos positions.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA FINAL ===== -->
+    <section class="cta-final">
+        <h2 class="h2">Prêt à piloter votre SEO comme une mission spatiale ?</h2>
+        <p class="lead" style="margin:0 auto 34px;">Votre cockpit est déjà en ligne. Connectez votre premier site et laissez l'agent travailler.</p>
+        <a href="/dashboard.html" class="btn-hero p">🔐 Entrer dans le cockpit</a>
+    </section>
+
+    <footer>
+        SEO Agent OS — propulsé par Hermes Agent (Nous Research) · hébergé sur votre propre serveur xCloud · <a href="/dashboard.html">Espace protégé</a>
+    </footer>
+
+    <script>
+        // particules d'arrière-plan (flow discret)
+        const canvas = document.createElement('canvas');
+        canvas.style.cssText = 'position:fixed;inset:0;z-index:-1;pointer-events:none;';
+        document.body.prepend(canvas);
+        const ctx = canvas.getContext('2d');
+        let W, H, P = [];
+        const C = ['139,92,246','59,130,246','16,185,129'];
+        function resize(){ W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+        resize(); addEventListener('resize', resize);
+        for (let i = 0; i < 55; i++) P.push({x:Math.random()*W, y:Math.random()*H, r:Math.random()*2+.6, vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28, c:C[i%3], a:Math.random()*.35+.12, ph:Math.random()*6.28});
+        (function draw(){
+            ctx.clearRect(0,0,W,H);
+            for (let i=0;i<P.length;i++){
+                const p=P[i]; p.x+=p.vx; p.y+=p.vy;
+                if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
+                p.ph+=.02;
+                for(let j=i+1;j<P.length;j++){
+                    const q=P[j], d=Math.hypot(p.x-q.x,p.y-q.y);
+                    if(d<140){ ctx.strokeStyle=`rgba(${p.c},${(1-d/140)*.07})`; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); }
+                }
+                ctx.beginPath(); ctx.arc(p.x,p.y,p.r+Math.sin(p.ph)*.4,0,6.283);
+                ctx.fillStyle=`rgba(${p.c},${p.a+Math.sin(p.ph)*.08})`; ctx.fill();
+            }
+            requestAnimationFrame(draw);
+        })();
+
+        // tilt 3D sur les cartes
+        document.querySelectorAll('.tilt3d').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const r = card.getBoundingClientRect();
+                const x = (e.clientX - r.left)/r.width - .5, y = (e.clientY - r.top)/r.height - .5;
+                card.style.transform = `perspective(900px) rotateY(${x*9}deg) rotateX(${-y*9}deg) translateY(-4px) scale(1.02)`;
+            });
+            card.addEventListener('mouseleave', () => card.style.transform = '');
+        });
+
+        // défilement doux pour les ancres
+        document.querySelectorAll('a[href^="#"]').forEach(a =>
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+            }));
+    </script>
+</body>
+</html>

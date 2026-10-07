@@ -30,11 +30,24 @@
     </div>
     <script>
         async function login() {
-            const r = await fetch('/auth', { method: 'POST', body: 'password=' + encodeURIComponent(document.getElementById('pw').value) });
-            if (r.redirected || r.status === 302) { location.href = '/dashboard.html'; return; }
-            const j = await r.json().catch(() => ({}));
-            if (j.ok === false) { document.getElementById('err').style.display = 'block'; }
-            else { location.href = '/dashboard.html'; }
+            const r = await fetch('/auth', {
+                method: 'POST',
+                body: 'password=' + encodeURIComponent(document.getElementById('pw').value),
+                redirect: 'manual'   // ne suit pas la 302 : on lit la réponse brute
+            });
+            // 302 = succès (location /dashboard.html) — le cookie est déjà posé par le navigateur
+            if (r.status === 302 || r.status === 0 || r.redirected) {
+                location.href = '/dashboard.html';
+                return;
+            }
+            // 200 = json {ok:false} → mauvais mot de passe
+            try {
+                const j = await r.json();
+                document.getElementById('err').style.display = j.ok ? 'none' : 'block';
+            } catch (e) {
+                // réponse non-JSON (page protégée renvoyée) → considérer comme succès
+                location.href = '/dashboard.html';
+            }
         }
     </script>
 </body>
