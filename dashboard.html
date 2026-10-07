@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Agent OS — Mission Control</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-orb"></span>
+                <span>SEO Agent <b>OS</b></span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="dashboard"><span class="nav-icon">◈</span><span>Mission Control</span></a>
+                <a href="#" class="nav-item" data-page="articles"><span class="nav-icon">▤</span><span>Articles</span></a>
+                <a href="#" class="nav-item" data-page="sites"><span class="nav-icon">◉</span><span>Sites &amp; Connexions</span></a>
+                <a href="#" class="nav-item" data-page="agents"><span class="nav-icon">⟡</span><span>Agents</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="agent-status"><span class="status-dot" id="sidebarDot"></span><span id="sidebarStatus">Système en ligne</span></div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <h2 id="page-title">Mission Control</h2>
+                    <p class="header-subtitle">Pilotage SEO multi-sites — données réelles</p>
+                </div>
+                <button class="btn-primary" onclick="showAddSiteModal()">＋ Nouveau site</button>
+            </header>
+
+            <!-- ============ MISSION CONTROL ============ -->
+            <div class="page active" id="dashboard-page">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card tilt">
+                        <div class="stat-icon" style="--glow:139,92,246">▤</div>
+                        <div><p class="stat-number" id="statArticles">0</p><p class="stat-label">Articles</p></div>
+                    </div>
+                    <div class="stat-card tilt">
+                        <div class="stat-icon" style="--glow:16,185,129">◉</div>
+                        <div><p class="stat-number" id="statSites">0</p><p class="stat-label">Sites connectés</p></div>
+                    </div>
+                    <div class="stat-card tilt">
+                        <div class="stat-icon" style="--glow:59,130,246">⇡</div>
+                        <div><p class="stat-number" id="statPublished">0</p><p class="stat-label">Publiés WordPress</p></div>
+                    </div>
+                    <div class="stat-card tilt">
+                        <div class="stat-icon" style="--glow:249,115,22">✦</div>
+                        <div><p class="stat-number" id="statDrafts">0</p><p class="stat-label">Brouillons</p></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Pipeline de Création</h3>
+                    <div class="pipeline-container">
+                        <div class="pipeline-step tilt active"><div class="step-icon">🔍</div><h4>Recherche</h4><p class="step-status">En cours</p><div class="step-progress"><div class="progress-bar" style="width:75%"></div></div></div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-step tilt"><div class="step-icon">📋</div><h4>Planification</h4><p class="step-status">En attente</p><div class="step-progress"><div class="progress-bar" style="width:0%"></div></div></div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-step tilt"><div class="step-icon">✍️</div><h4>Rédaction</h4><p class="step-status">En attente</p><div class="step-progress"><div class="progress-bar" style="width:0%"></div></div></div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-step tilt"><div class="step-icon">✅</div><h4>Optimisation</h4><p class="step-status">En attente</p><div class="step-progress"><div class="progress-bar" style="width:0%"></div></div></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Articles Récents</h3>
+                    <div class="articles-list" id="recentArticles"></div>
+                </div>
+            </div>
+
+            <!-- ============ ARTICLES ============ -->
+            <div class="page" id="articles-page">
+                <div class="page-actions">
+                    <input type="text" class="search-input" placeholder="🔍 Rechercher un article..." oninput="filterArticles(this.value)">
+                    <select class="filter-select" id="statusFilter" onchange="filterArticles(document.querySelector('.search-input').value)">
+                        <option value="">Tous les statuts</option>
+                        <option value="publish">Publié</option>
+                        <option value="draft">Brouillon</option>
+                    </select>
+                </div>
+                <div class="articles-table">
+                    <table>
+                        <thead><tr><th>Titre</th><th>Statut</th><th>WordPress</th><th>Site</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody id="articlesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ============ SITES ============ -->
+            <div class="page" id="sites-page">
+                <div class="page-actions">
+                    <button class="btn-primary" onclick="showAddSiteModal()">＋ Ajouter un site</button>
+                </div>
+                <div class="sites-grid" id="sitesGrid"></div>
+                <div class="section" style="margin-top:24px;">
+                    <h3 class="section-title">🔌 Connexions API</h3>
+                    <div class="conn-grid">
+                        <div class="conn-card tilt">
+                            <div class="conn-logo gsc">G</div>
+                            <div>
+                                <strong>Google Search Console</strong>
+                                <p id="gscStatus">Vérification…</p>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:6px;">
+                                <label class="btn-secondary" style="cursor:pointer;text-align:center;">
+                                    📄 Importer clé JSON<input type="file" id="gscFile" accept=".json" style="display:none" onchange="importGSCKey(this)">
+                                </label>
+                                <button class="btn-secondary" onclick="configureGSC()">Coller la clé</button>
+                            </div>
+                        </div>
+                        <div class="conn-card tilt">
+                            <div class="conn-logo bing">b</div>
+                            <div>
+                                <strong>Bing Webmaster Tools</strong>
+                                <p id="bingStatus">Vérification…</p>
+                            </div>
+                            <button class="btn-secondary" onclick="configureBing()">Configurer</button>
+                        </div>
+                    </div>
+                    <p class="conn-help">💡 GSC : Google Cloud Console → crée un compte de service → active l'API Search Console → télécharge la clé JSON → ajoute le compte (…@…iam.gserviceaccount.com) comme utilisateur dans GSC. Bing : Webmaster Tools → API Access → génère la clé.</p>
+                </div>
+            </div>
+
+            <!-- ============ AGENTS ============ -->
+            <div class="page" id="agents-page">
+                <div class="section"><h3 class="section-title">Agents SEO</h3>
+                <p style="color:var(--text-secondary)">Agent principal : Newsmangas Article (Hermes). Les sous-agents Claude/Codex/OpenCode sont configurables via la plateforme Hermes.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Ajouter Site -->
+    <div class="modal" id="addSiteModal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Ajouter un site WordPress</h3><button class="modal-close" onclick="closeModal('addSiteModal')">×</button></div>
+            <div class="modal-body">
+                <div class="form-group"><label>Nom du site</label><input type="text" id="siteName" placeholder="NewsMangas"></div>
+                <div class="form-group"><label>URL</label><input type="text" id="siteUrl" placeholder="https://newsmangas.com"></div>
+                <div class="form-group"><label>Utilisateur WordPress</label><input type="text" id="siteUser" placeholder="admin"></div>
+                <div class="form-group"><label>Mot de passe d'application</label><input type="password" id="sitePass" placeholder="xxxx xxxx xxxx xxxx"></div>
+                <div class="form-group"><label>Google Search Console (property)</label><input type="text" id="siteGsc" placeholder="sc-domain:newsmangas.com"></div>
+                <div class="form-group"><label>Site Bing Webmaster</label><input type="text" id="siteBing" placeholder="https://newsmangas.com"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('addSiteModal')">Annuler</button>
+                <button class="btn-primary" onclick="addSite()">💾 Enregistrer &amp; tester</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

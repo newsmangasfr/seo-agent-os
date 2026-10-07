@@ -1,0 +1,1 @@
+# SEO Agent OS — aucun paquet externe requis (stdlib uniquement)

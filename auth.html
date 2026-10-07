@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Agent OS — Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; height:100vh; display:flex; align-items:center; justify-content:center;
+            background:radial-gradient(800px 400px at 80% -10%, rgba(139,92,246,.15), transparent 60%),
+                       radial-gradient(600px 400px at -10% 110%, rgba(59,130,246,.12), transparent 60%), #07070c; color:#fff; }
+        .box { width:360px; padding:36px; border-radius:20px; background:rgba(20,20,32,.7); border:1px solid rgba(255,255,255,.1); backdrop-filter:blur(20px); }
+        h1 { font-size:18px; margin-bottom:8px; }
+        p { font-size:12.5px; color:rgba(255,255,255,.5); margin-bottom:22px; }
+        input { width:100%; padding:12px 14px; border-radius:10px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.13); color:#fff; font-size:14px; outline:none; }
+        input:focus { border-color:#8b5cf6; }
+        button { width:100%; margin-top:14px; padding:12px; border:none; border-radius:10px; cursor:pointer; font-size:14px; font-weight:600; color:#fff;
+            background:linear-gradient(135deg,#8b5cf6,#6d28d9); box-shadow:0 6px 24px rgba(139,92,246,.35); }
+        .err { color:#ef4444; font-size:12.5px; margin-top:10px; display:none; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>🔒 SEO Agent OS</h1>
+        <p>Accès protégé — entrez votre mot de passe</p>
+        <input type="password" id="pw" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')login()">
+        <button onclick="login()">Se connecter</button>
+        <p class="err" id="err">Mot de passe incorrect</p>
+    </div>
+    <script>
+        async function login() {
+            const r = await fetch('/auth', { method: 'POST', body: 'password=' + encodeURIComponent(document.getElementById('pw').value) });
+            if (r.redirected || r.status === 302) { location.href = '/dashboard.html'; return; }
+            const j = await r.json().catch(() => ({}));
+            if (j.ok === false) { document.getElementById('err').style.display = 'block'; }
+            else { location.href = '/dashboard.html'; }
+        }
+    </script>
+</body>
+</html>
