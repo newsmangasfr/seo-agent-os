@@ -96,6 +96,7 @@
 
         footer { padding: 34px 40px; border-top:1px solid var(--border); text-align:center; font-size:12.5px; color:var(--text-muted); }
         footer a { color: var(--text-secondary); text-decoration:none; }
+    @media (max-width: 900px) { .section-pad[style*="grid-template-columns:1.1fr"] { grid-template-columns: 1fr !important; } }
     </style>
 </head>
 <body>
@@ -110,7 +111,8 @@
     </nav>
 
     <!-- ===== HERO ===== -->
-    <header class="hero">
+    <header class="hero" style="position:relative; overflow:hidden;">
+        <img src="assets/hero.jpg" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.28; z-index:-1; mask-image:linear-gradient(to bottom, rgba(0,0,0,.9), transparent 85%); -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,.9), transparent 85%);">
         <div class="hero-badge"><span class="status-dot"></span> Propulsé par IA — connecté à vos sites WordPress</div>
         <h1>Le cockpit <span class="grad">SEO nouvelle génération</span> pour vos sites manga, anime &amp; séries</h1>
         <p class="sub">SEO Agent OS analyse vos sites WordPress, génère des articles optimisés en français, surveille vos positions Google Search Console et Bing, et publie pour vous — pendant que vous vous concentrez sur votre contenu.</p>
@@ -141,7 +143,8 @@
     </section>
 
     <!-- ===== GOOGLE / BING ===== -->
-    <section class="section-pad" id="google">
+    <section class="section-pad" id="google" style="display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center;">
+        <div>
         <div class="kicker">Google Search Console &amp; Bing Webmaster</div>
         <h2 class="h2">Vos données de recherche, sans quitter le cockpit</h2>
         <p class="lead">Connectez vos properties GSC et vos sites Bing Webmaster Tools une fois, puis suivez impressions, clics, CTR et position moyenne par page — directement dans le dashboard. Quand Google annonce une évolution de ses recommandations, c'est ici que vous l'appliquez à vos contenus, article par article.</p>
@@ -152,12 +155,17 @@
         </div>
     </section>
 
+    </div>
+        <img src="assets/gsc.jpg" alt="Analytics SEO 3D" class="tilt3d" style="width:100%; border-radius:20px; box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 60px rgba(59,130,246,.15);">
+    </section>
+
     <!-- ===== NOUVEAUTES IA ===== -->
     <section class="section-pad" id="ia">
         <div class="kicker">Veille IA &amp; SEO</div>
         <h2 class="h2">Ce que l'IA change pour le SEO en ce moment</h2>
         <p class="lead">Le paysage bouge vite : recherche générative, AI Overviews, systèmes de recommandation de Google. Voici la lecture que SEO Agent OS en fait pour vos sites — et comment l'agent s'adapte en continu.</p>
-        <div class="fcard" style="margin-top:36px;">
+        <img src="assets/wordpress.jpg" alt="IA et WordPress" class="tilt3d" style="width:100%; border-radius:20px; margin:30px 0; box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 60px rgba(139,92,246,.15);">
+        <div class="fcard">
             <div class="news-item">
                 <span class="news-date">2026</span>
                 <div><h4>AI Overviews et clics organiques : l'adaptation est vitale</h4><p>Les réponses générées par Google grignotent les clics sur les requêtes informationnelles. La riposte est éditoriale : contenus à forte valeur ajoutée (dates officielles France, analyses de spoilers, guides d'épisodes), données que l'IA ne peut pas remplacer, et pages pensées pour la clicabilité.</p></div>
