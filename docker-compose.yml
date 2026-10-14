@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  agent-os:
+    build: .
+    container_name: agent-os
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # persistance SQLite + clés API hors de l'image
+      - agentos-data:/app/data
+      - ./api_keys.json:/app/api_keys.json:ro
+    environment:
+      - PORT=8000
+      - DASH_PASSWORD=${DASH_PASSWORD:-}
+
+volumes:
+  agentos-data:

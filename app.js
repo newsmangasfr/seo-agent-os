@@ -14,6 +14,7 @@ const pageTitles = {
     dashboard: 'Mission Control',
     articles: 'Articles',
     sites: 'Sites & Connexions',
+    studio: 'Studio IA — Création de contenu',
     agents: 'Agents',
 };
 document.querySelectorAll('.nav-item[data-page]').forEach(item => {
@@ -34,6 +35,133 @@ function refresh(page) {
     if (page === 'sites') loadSites();
     if (page === 'articles') loadArticles();
     if (page === 'dashboard') loadDashboard();
+    if (page === 'studio') loadStudio();
+}
+
+// ========== STUDIO IA ==========
+function studioPayload() {
+    return {
+        site_id: parseInt(document.getElementById('studioSite').value),
+        topic: document.getElementById('studioTopic').value.trim(),
+        keywords: document.getElementById('studioKeywords').value.trim(),
+        length: document.getElementById('studioLength').value,
+        custom_instructions: document.getElementById('studioCustom').value.trim(),
+        research: document.getElementById('studioResearch').checked,
+    };
+}
+
+async function loadStudio() {
+    // peupler le select des sites
+    const data = await apiGet('/api/sites');
+    if (data.ok) {
+        const sel = document.getElementById('studioSite');
+        sel.innerHTML = data.sites.map(s =>
+            `<option value="${s.id}">${esc(s.name)} — ${esc(s.url)}</option>`).join('');
+    }
+    // statut providers
+    const st = await apiGet('/api/content/status');
+    if (st.ok) {
+        const or = document.getElementById('openrouterStatus'), bp = document.getElementById('beatapiStatus');
+        or.innerHTML = st.openrouter_configured
+            ? '<span style="color:var(--accent-green);">● Configuré — ' + st.openrouter_free_models_count + ' modèles gratuits dispo</span>'
+            : '<span style="color:var(--accent-orange);">● Non configuré</span>';
+        bp.innerHTML = st.beatapi_configured
+            ? '<span style="color:var(--accent-green);">● Configuré</span>'
+            : '<span style="color:var(--text-muted);">● Non configuré (mode dégradé)</span>';
+    }
+}
+
+function studioRender(art, extra) {
+    const meta = extra || {};
+    const p = document.getElementById('studioPreview');
+    p.innerHTML = `
+        <div class="studio-result">
+            <div class="studio-result-head">
+                <h3>${esc(art.title)}</h3>
+                <div class="studio-badges">
+                    <span class="badge success">SEO : ${esc(art.seo_title || '—')}</span>
+                    ${meta.model ? `<span class="badge">${esc(meta.model)}</span>` : ''}
+                    ${meta.research_used ? '<span class="badge success">🌐 sources web</span>' : ''}
+                </div>
+            </div>
+            <p class="studio-meta-desc"><strong>Meta description :</strong> ${esc(art.meta_description || '')}</p>
+            <div class="studio-content">${mdToHtml(art.content || '')}</div>
+            <div class="studio-links">
+                <strong>Liens internes suggérés :</strong>
+                ${(art.internal_links || []).length ? art.internal_links.map(u => `<div class="mono">${esc(u)}</div>`).join('') : '<em>aucun</em>'}
+            </div>
+        </div>`;
+}
+
+function mdToHtml(md) {
+    return esc(md)
+        .replace(/^### (.+)$/gm, '<h4>$1</h4>')
+        .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/^/, '<p>').replace(/$/, '</p>');
+}
+
+function studioBusy(label) {
+    document.getElementById('studioPreview').innerHTML =
+        `<div class="studio-placeholder"><div class="spinner"></div><p>${label}…</p></div>`;
+}
+
+async function studioGenerate() {
+    const payload = studioPayload();
+    if (!payload.site_id || !payload.topic) { alert('Site et sujet obligatoires'); return; }
+    studioBusy('Génération IA en cours (30-90 s selon le modèle)');
+    const res = await apiPost('/api/content/generate', payload);
+    if (res.ok) {
+        studioRender(res.article, { model: res.model, research_used: res.research_used });
+    } else {
+        document.getElementById('studioPreview').innerHTML =
+            `<div class="studio-placeholder" style="color:#ef4444">❌ ${esc(res.error)}</div>`;
+    }
+}
+
+async function studioDraft() {
+    const payload = studioPayload();
+    if (!payload.site_id || !payload.topic) { alert('Site et sujet obligatoires'); return; }
+    studioBusy('Génération + enregistrement du brouillon…');
+    const res = await apiPost('/api/content/draft', payload);
+    if (res.ok) {
+        studioRender(res.article, { model: res.model });
+        alert('✅ Brouillon enregistré (article #' + res.article_id + ')');
+    } else {
+        document.getElementById('studioPreview').innerHTML =
+            `<div class="studio-placeholder" style="color:#ef4444">❌ ${esc(res.error)}</div>`;
+    }
+}
+
+async function studioPublish(publishNow) {
+    if (publishNow && !confirm('Publier EN LIGNE sur WordPress ?')) return;
+    const payload = { ...studioPayload(), publish_now: publishNow };
+    if (!payload.site_id || !payload.topic) { alert('Site et sujet obligatoires'); return; }
+    studioBusy(publishNow ? 'Génération + publication en ligne…' : 'Génération + envoi brouillon WP…');
+    const res = await apiPost('/api/content/publish', payload);
+    if (res.ok) {
+        alert('✅ Publié — ' + (res.wp_link || 'WP #' + res.wp_id));
+        document.getElementById('studioPreview').innerHTML =
+            `<div class="studio-placeholder" style="color:var(--accent-green)">✅ Publié sur WordPress<br><a href="${esc(res.wp_link)}" target="_blank">${esc(res.wp_link)}</a></div>`;
+    } else {
+        document.getElementById('studioPreview').innerHTML =
+            `<div class="studio-placeholder" style="color:#ef4444">❌ ${esc(res.error)}</div>`;
+    }
+}
+
+async function configureOpenRouter() {
+    const key = prompt('Colle ta clé OpenRouter (sk-or-...) :');
+    if (!key) return;
+    await apiPost('/api/keys', { openrouter: key });
+    loadStudio();
+}
+async function configureBeatAPI() {
+    const key = prompt('Colle ta clé BeatAPI :');
+    if (!key) return;
+    await apiPost('/api/keys', { beatapi: key });
+    loadStudio();
 }
 
 // ========== DASHBOARD ==========
@@ -222,7 +350,7 @@ function showAddSiteModal() { document.getElementById('addSiteModal').classList.
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); }));
 
-// ========== EFFET 3D TILT ==========
+// ========== EFFET 3D TILT (rotation souris + glow violet) ==========
 function initTilt() {
     document.querySelectorAll('.tilt').forEach(card => {
         if (card._tiltBound) return;
@@ -231,9 +359,18 @@ function initTilt() {
             const r = card.getBoundingClientRect();
             const x = (e.clientX - r.left) / r.width - 0.5;
             const y = (e.clientY - r.top) / r.height - 0.5;
-            card.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateY(-3px) scale(1.015)`;
+            card.style.transform =
+                `perspective(900px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) ` +
+                `translateY(-4px) scale(1.02)`;
+            // reflet dynamique
+            card.style.background =
+                `radial-gradient(600px circle at ${e.clientX - r.left}px ${e.clientY - r.top}px, ` +
+                `rgba(168,85,247,0.10), transparent 45%), var(--bg-card)`;
         });
-        card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+            card.style.background = '';
+        });
     });
 }
 
@@ -242,56 +379,5 @@ document.addEventListener('DOMContentLoaded', async function () {
     loadDashboard();
     loadKeyStatus();
     initTilt();
-    initParticles();
-    console.log('SEO Agent OS — Mission Control prêt.');
+    console.log('Agent OS — Mission Control 3D Flow Violet prêt.');
 });
-
-// ========== ANIMATIONS « BLOW FLOW » ==========
-function initParticles() {
-    const canvas = document.createElement('canvas');
-    canvas.id = 'bgParticles';
-    document.body.prepend(canvas);
-    const ctx = canvas.getContext('2d');
-    let W, H, particles = [];
-    const COLORS = ['139,92,246', '59,130,246', '16,185,129'];
-
-    function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
-    resize();
-    addEventListener('resize', resize);
-
-    for (let i = 0; i < 45; i++) {
-        particles.push({
-            x: Math.random() * W, y: Math.random() * H,
-            r: Math.random() * 2 + 0.6,
-            vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25,
-            c: COLORS[i % 3], a: Math.random() * .4 + .15,
-            pulse: Math.random() * Math.PI * 2,
-        });
-    }
-
-    (function draw() {
-        ctx.clearRect(0, 0, W, H);
-        // liaisons entre particules proches
-        for (let i = 0; i < particles.length; i++) {
-            const p = particles[i];
-            p.x += p.vx; p.y += p.vy;
-            if (p.x < 0 || p.x > W) p.vx *= -1;
-            if (p.y < 0 || p.y > H) p.vy *= -1;
-            p.pulse += .02;
-            for (let j = i + 1; j < particles.length; j++) {
-                const q = particles[j];
-                const d = Math.hypot(p.x - q.x, p.y - q.y);
-                if (d < 130) {
-                    ctx.strokeStyle = `rgba(${p.c},${(1 - d / 130) * .08})`;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
-                }
-            }
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r + Math.sin(p.pulse) * .4, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${p.c},${p.a + Math.sin(p.pulse) * .1})`;
-            ctx.fill();
-        }
-        requestAnimationFrame(draw);
-    })();
-}

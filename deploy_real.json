@@ -1,0 +1,19 @@
+{
+ "repository": {
+  "url": "https://github.com/newsmangasfr/seo-agent-os",
+  "branch": "main"
+ },
+ "domain": {
+  "mode": "staging",
+  "name": "seo-agent-os",
+  "staging_domain": "wp1.host",
+  "title": "SEO Agent OS"
+ },
+ "docker": {
+  "mode": "dockerfile",
+  "dockerfile_path": "Dockerfile",
+  "container_port": 8000
+ },
+ "env_file_content": "DASH_PASSWORD=Gho@13013\n",
+ "dry_run": false
+}

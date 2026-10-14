@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEO Agent OS — Mission Control</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Agent OS — Mission Control · 3D Flow Violet</title>
+    <link rel="stylesheet" href="theme-3d.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <canvas id="flow3d"></canvas>
+    <div class="bg-veil"></div>
+
     <div class="app-container">
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <span class="logo-orb"></span>
-                <span>SEO Agent <b>OS</b></span>
+                <span>Agent <b>OS</b></span>
             </div>
             <nav class="nav-menu">
                 <a href="#" class="nav-item active" data-page="dashboard"><span class="nav-icon">◈</span><span>Mission Control</span></a>
                 <a href="#" class="nav-item" data-page="articles"><span class="nav-icon">▤</span><span>Articles</span></a>
                 <a href="#" class="nav-item" data-page="sites"><span class="nav-icon">◉</span><span>Sites &amp; Connexions</span></a>
+                <a href="#" class="nav-item" data-page="studio"><span class="nav-icon">✍️</span><span>Studio IA</span></a>
                 <a href="#" class="nav-item" data-page="agents"><span class="nav-icon">⟡</span><span>Agents</span></a>
             </nav>
             <div class="sidebar-footer">
@@ -38,19 +42,19 @@
             <div class="page active" id="dashboard-page">
                 <div class="stats-grid" id="statsGrid">
                     <div class="stat-card tilt">
-                        <div class="stat-icon" style="--glow:139,92,246">▤</div>
+                        <div class="stat-icon" style="--glow:168,85,247;--glow-rgb:168,85,247">▤</div>
                         <div><p class="stat-number" id="statArticles">0</p><p class="stat-label">Articles</p></div>
                     </div>
                     <div class="stat-card tilt">
-                        <div class="stat-icon" style="--glow:16,185,129">◉</div>
+                        <div class="stat-icon" style="--glow:52,211,153;--glow-rgb:52,211,153">◉</div>
                         <div><p class="stat-number" id="statSites">0</p><p class="stat-label">Sites connectés</p></div>
                     </div>
                     <div class="stat-card tilt">
-                        <div class="stat-icon" style="--glow:59,130,246">⇡</div>
+                        <div class="stat-icon" style="--glow:34,211,238;--glow-rgb:34,211,238">⇡</div>
                         <div><p class="stat-number" id="statPublished">0</p><p class="stat-label">Publiés WordPress</p></div>
                     </div>
                     <div class="stat-card tilt">
-                        <div class="stat-icon" style="--glow:249,115,22">✦</div>
+                        <div class="stat-icon" style="--glow:217,70,239;--glow-rgb:217,70,239">✦</div>
                         <div><p class="stat-number" id="statDrafts">0</p><p class="stat-label">Brouillons</p></div>
                     </div>
                 </div>
@@ -127,6 +131,73 @@
                 </div>
             </div>
 
+            <!-- ============ STUDIO IA ============ -->
+            <div class="page" id="studio-page">
+                <div class="section">
+                    <h3 class="section-title">✍️ Studio de création de contenu</h3>
+                    <div class="studio-layout">
+                        <div class="studio-form">
+                            <div class="form-group">
+                                <label>Site cible</label>
+                                <select id="studioSite" class="filter-select" style="width:100%"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Sujet / Titre de l'article</label>
+                                <input type="text" id="studioTopic" placeholder="One Piece chapitre 1140 : date de sortie France et résumé">
+                            </div>
+                            <div class="form-group">
+                                <label>Mots-clés (séparés par des virgules)</label>
+                                <input type="text" id="studioKeywords" placeholder="one piece 1140, date sortie one piece, scan one piece">
+                            </div>
+                            <div class="form-group">
+                                <label>Longueur</label>
+                                <select id="studioLength" class="filter-select" style="width:100%">
+                                    <option value="court">Court (~700 mots)</option>
+                                    <option value="standard" selected>Standard (~1200 mots)</option>
+                                    <option value="long">Long (~2000 mots)</option>
+                                    <option value="pilier">Pilier (~2800 mots)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Instructions supplémentaires (optionnel)</label>
+                                <textarea id="studioCustom" rows="3" placeholder="Angle éditorial, style, infos à inclure..."></textarea>
+                            </div>
+                            <div class="studio-checks">
+                                <label class="studio-check"><input type="checkbox" id="studioResearch" checked> Recherche web de sources (BeatAPI)</label>
+                            </div>
+                            <div class="studio-actions">
+                                <button class="btn-secondary" onclick="studioGenerate()">🔍 Générer un aperçu</button>
+                                <button class="btn-secondary" onclick="studioDraft()">💾 Brouillon local</button>
+                                <button class="btn-primary" onclick="studioPublish(false)">📤 Publier WP (brouillon)</button>
+                                <button class="btn-primary" style="background:linear-gradient(135deg,#10b981,#059669)" onclick="studioPublish(true)">🚀 Publier en ligne</button>
+                            </div>
+                        </div>
+                        <div class="studio-preview" id="studioPreview">
+                            <div class="studio-placeholder">
+                                <div style="font-size:40px;margin-bottom:12px;">✍️</div>
+                                <p>Le contenu généré s'affichera ici.<br>Choisis un site, un sujet, et lance la génération.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3 class="section-title">🔌 État des providers</h3>
+                    <div class="conn-grid">
+                        <div class="conn-card tilt">
+                            <div class="conn-logo gsc" style="background:rgba(139,92,246,.12)">🧠</div>
+                            <div><strong>OpenRouter (gratuit)</strong><p id="openrouterStatus">Vérification…</p></div>
+                            <button class="btn-secondary" onclick="configureOpenRouter()">Configurer</button>
+                        </div>
+                        <div class="conn-card tilt">
+                            <div class="conn-logo bing" style="background:rgba(16,185,129,.12)">🔎</div>
+                            <div><strong>BeatAPI (recherche web)</strong><p id="beatapiStatus">Vérification…</p></div>
+                            <button class="btn-secondary" onclick="configureBeatAPI()">Configurer</button>
+                        </div>
+                    </div>
+                    <p class="conn-help">💡 OpenRouter : crée un compte sur openrouter.ai → Keys → Create Key (modèles :free = 0€). BeatAPI : clé API depuis ton tableau de bord BeatAPI.</p>
+                </div>
+            </div>
+
             <!-- ============ AGENTS ============ -->
             <div class="page" id="agents-page">
                 <div class="section"><h3 class="section-title">Agents SEO</h3>
@@ -155,6 +226,7 @@
         </div>
     </div>
 
+    <script src="flow3d.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

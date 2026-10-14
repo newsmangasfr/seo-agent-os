@@ -1,0 +1,9 @@
+.git
+__pycache__/
+*.pyc
+.env
+api_keys.json
+seo_os.db
+*.db-wal
+*.db-shm
+backend_old_backup.py
