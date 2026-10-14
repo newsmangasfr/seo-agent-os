@@ -6,5 +6,3 @@ __pycache__
 *.pyc
 seo_os.db-wal
 seo_os.db-shm
-seo_os_backup.db
-.deploy_cookie
