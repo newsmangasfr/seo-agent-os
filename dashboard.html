@@ -22,6 +22,7 @@
                 <a href="#" class="nav-item" data-page="articles"><span class="nav-icon">▤</span><span>Articles</span></a>
                 <a href="#" class="nav-item" data-page="sites"><span class="nav-icon">◉</span><span>Sites &amp; Connexions</span></a>
                 <a href="#" class="nav-item" data-page="studio"><span class="nav-icon">✍️</span><span>Studio IA</span></a>
+                <a href="#" class="nav-item" data-page="transcribe"><span class="nav-icon">🎙️</span><span>Transcription</span></a>
                 <a href="#" class="nav-item" data-page="agents"><span class="nav-icon">⟡</span><span>Agents</span></a>
             </nav>
             <div class="sidebar-footer">
@@ -202,6 +203,66 @@
                         </div>
                     </div>
                     <p class="conn-help">💡 OpenRouter : crée un compte sur openrouter.ai → Keys → Create Key (modèles :free = 0€). BeatAPI : clé API depuis ton tableau de bord BeatAPI.</p>
+                </div>
+            </div>
+
+            <!-- ============ TRANSCRIPTION ============ -->
+            <div class="page" id="transcribe-page">
+                <div class="section">
+                    <h3 class="section-title">🎙️ Transcription audio → article</h3>
+                    <div class="studio-layout">
+                        <div class="studio-form">
+                            <div class="form-group">
+                                <label>Fichier audio / vidéo</label>
+                                <input type="file" id="trFile" accept="audio/*,video/*" style="padding:9px;">
+                                <p style="font-size:11.5px;color:var(--text-muted);margin-top:6px;">MP3, WAV, M4A, MP4… (Groq Whisper, gratuit)</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Site cible (pour l'article)</label>
+                                <select id="trSite" class="filter-select" style="width:100%"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Sujet de l'article (optionnel — sinon déduit de l'audio)</label>
+                                <input type="text" id="trTopic" placeholder="Ex: Compte-rendu du live One Piece">
+                            </div>
+                            <div class="form-group">
+                                <label>Mots-clés</label>
+                                <input type="text" id="trKeywords" placeholder="one piece, live, resume">
+                            </div>
+                            <div class="form-group">
+                                <label>Longueur de l'article</label>
+                                <select id="trLength" class="filter-select" style="width:100%">
+                                    <option value="court">Court (~700 mots)</option>
+                                    <option value="standard" selected>Standard (~1200 mots)</option>
+                                    <option value="long">Long (~2000 mots)</option>
+                                </select>
+                            </div>
+                            <div class="studio-checks">
+                                <label class="studio-check"><input type="checkbox" id="trWrite" checked> Rédiger un article depuis la transcription</label>
+                            </div>
+                            <div class="studio-actions">
+                                <button class="btn-secondary" onclick="doTranscribeOnly()">📝 Transcrire seulement</button>
+                                <button class="btn-primary" onclick="doTranscribeArticle()">✨ Transcrire + rédiger l'article</button>
+                            </div>
+                        </div>
+                        <div class="studio-preview" id="trPreview">
+                            <div class="studio-placeholder">
+                                <div style="font-size:40px;margin-bottom:12px;">🎙️</div>
+                                <p>Choisis un fichier audio et lance la transcription.<br>L'article rédigé s'affichera ici.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3 class="section-title">🔌 Groq Whisper</h3>
+                    <div class="conn-grid">
+                        <div class="conn-card tilt">
+                            <div class="conn-logo bing">🎙️</div>
+                            <div><strong>Groq (transcription)</strong><p id="groqStatus">Vérification…</p></div>
+                            <button class="btn-secondary" onclick="configureGroq()">Configurer</button>
+                        </div>
+                    </div>
+                    <p class="conn-help">💡 Groq : console.groq.com → API Keys → Create Key (gratuit). Whisper-large-v3, transcription ultra-rapide.</p>
                 </div>
             </div>
 

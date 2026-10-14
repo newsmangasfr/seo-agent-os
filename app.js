@@ -15,6 +15,7 @@ const pageTitles = {
     articles: 'Articles',
     sites: 'Sites & Connexions',
     studio: 'Studio IA — Création de contenu',
+    transcribe: 'Transcription audio → article',
     agents: 'Agents',
 };
 document.querySelectorAll('.nav-item[data-page]').forEach(item => {
@@ -36,6 +37,7 @@ function refresh(page) {
     if (page === 'articles') loadArticles();
     if (page === 'dashboard') loadDashboard();
     if (page === 'studio') loadStudio();
+    if (page === 'transcribe') loadTranscribe();
 }
 
 // ========== STUDIO IA ==========
@@ -211,6 +213,93 @@ async function configureBeatAPI() {
     if (!key) return;
     await apiPost('/api/keys', { beatapi: key });
     loadStudio();
+}
+
+// ========== TRANSCRIPTION ==========
+async function loadTranscribe() {
+    const data = await apiGet('/api/sites');
+    if (data.ok) {
+        document.getElementById('trSite').innerHTML =
+            data.sites.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+    }
+    const g = await apiGet('/api/tools/groq-status');
+    if (g.ok) {
+        document.getElementById('groqStatus').innerHTML = g.configured
+            ? '<span style="color:var(--tide-light);">● Configuré</span>'
+            : '<span style="color:var(--text-muted);">● Non configuré</span>';
+    }
+}
+
+async function configureGroq() {
+    const key = prompt('Colle ta clé Groq (gsk_...) :');
+    if (!key) return;
+    await apiPost('/api/keys', { groq: key });
+    loadTranscribe();
+}
+
+function trReadFile() {
+    return new Promise((resolve, reject) => {
+        const f = document.getElementById('trFile').files[0];
+        if (!f) { reject(new Error('Choisis un fichier audio.')); return; }
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]); // base64 sans préfixe
+        reader.onerror = () => reject(new Error('Lecture du fichier échouée.'));
+        reader.readAsDataURL(f);
+    });
+}
+
+async function doTranscribe(writeArticle) {
+    const preview = document.getElementById('trPreview');
+    try {
+        const audio_base64 = await trReadFile();
+        const filename = document.getElementById('trFile').files[0]?.name || 'audio.mp3';
+        preview.innerHTML = '<div class="studio-placeholder"><div class="spinner"></div><p>Transcription Groq en cours…</p></div>';
+        const body = {
+            audio_base64, filename,
+            site_id: parseInt(document.getElementById('trSite').value) || null,
+            topic: document.getElementById('trTopic').value.trim(),
+            keywords: document.getElementById('trKeywords').value.trim(),
+            length: document.getElementById('trLength').value,
+            write_article: writeArticle,
+        };
+        const res = await apiPost('/api/tools/transcribe', body);
+        if (res.ok) {
+            renderTranscription(res);
+        } else {
+            preview.innerHTML = `<div class="studio-placeholder" style="color:#fca5a5">❌ ${esc(res.error)}</div>`;
+        }
+    } catch (e) {
+        preview.innerHTML = `<div class="studio-placeholder" style="color:#fca5a5">❌ ${esc(e.message)}</div>`;
+    }
+}
+
+function doTranscribeOnly() { doTranscribe(false); }
+function doTranscribeArticle() { doTranscribe(true); }
+
+function renderTranscription(res) {
+    const p = document.getElementById('trPreview');
+    let html = `
+        <div class="studio-result-head">
+            <h3>📝 Transcription (${res.words} mots)</h3>
+        </div>
+        <div class="studio-meta-desc" style="white-space:pre-wrap;">${esc(res.transcription)}</div>`;
+    if (res.article) {
+        const a = res.article;
+        html += `
+            <hr style="border:none;border-top:1px solid var(--border);margin:22px 0;">
+            <div class="studio-result-head">
+                <h3>${esc(a.title)}</h3>
+                <div class="studio-badges">
+                    <span class="badge success">SEO : ${esc(a.seo_title || '—')}</span>
+                    ${res.model ? `<span class="badge">${esc(res.model)}</span>` : ''}
+                </div>
+            </div>
+            <p class="studio-meta-desc"><strong>Meta :</strong> ${esc(a.meta_description || '')}</p>
+            <div class="studio-content">${mdToHtml(a.content || '')}</div>`;
+    } else if (res.article_error) {
+        html += `<p style="color:#fca5a5;margin-top:14px;">⚠️ Article non généré : ${esc(res.article_error)}</p>`;
+    }
+    p.innerHTML = html;
 }
 
 // ========== DASHBOARD ==========
