@@ -159,6 +159,57 @@ def xcloud_deploy(ctx, body):
     return {"ok": True, "dry_run": dry, "data": data, "message": msg, "server_uuid": uuid, "mode": mode}
 
 
+# ---------- GSC ----------
+def gsc_status(ctx, body):
+    from providers import gsc
+    return {"ok": True, "configured": gsc.configured()}
+
+
+def gsc_sites(ctx, body):
+    from providers import gsc
+    if not gsc.configured():
+        return {"ok": False, "error": "compte de service GSC non configuré (importe la clé JSON)"}
+    ok, data = gsc.list_sites()
+    return {"ok": ok, "sites": data} if ok else {"ok": False, "error": data}
+
+
+def gsc_summary(ctx, body):
+    """GET /api/gsc/summary?property=sc-domain:xxx&days=28"""
+    from providers import gsc
+    if not gsc.configured():
+        return {"ok": False, "error": "GSC non configuré"}
+    prop = ctx["params"].get("property") or body.get("property")
+    if not prop:
+        return {"ok": False, "error": "propriété GSC requise"}
+    ok, data = gsc.summary(prop, days=int(ctx["params"].get("days", 28)))
+    return {"ok": ok, "data": data} if ok else {"ok": False, "error": data}
+
+
+# ---------- Bing ----------
+def bing_status(ctx, body):
+    from providers import bing
+    return {"ok": True, "configured": bing.configured()}
+
+
+def bing_sites(ctx, body):
+    from providers import bing
+    if not bing.configured():
+        return {"ok": False, "error": "clé Bing non configurée"}
+    ok, data = bing.list_sites()
+    return {"ok": ok, "sites": data} if ok else {"ok": False, "error": data}
+
+
+def bing_traffic(ctx, body):
+    from providers import bing
+    if not bing.configured():
+        return {"ok": False, "error": "Bing non configuré"}
+    site_url = ctx["params"].get("site") or body.get("site")
+    if not site_url:
+        return {"ok": False, "error": "URL du site requise"}
+    ok, data = bing.get_traffic(site_url)
+    return {"ok": ok, "data": data} if ok else {"ok": False, "error": data}
+
+
 LEGACY_ROUTES = [
     ("GET", r"/api/sites", get_sites),
     ("POST", r"/api/sites", add_site),
@@ -173,6 +224,12 @@ LEGACY_ROUTES = [
     ("GET", r"/api/xcloud/servers", xcloud_servers),
     ("GET", r"/api/xcloud/sites", xcloud_sites),
     ("POST", r"/api/xcloud/deploy", xcloud_deploy),
+    ("GET", r"/api/gsc/status", gsc_status),
+    ("GET", r"/api/gsc/sites", gsc_sites),
+    ("GET", r"/api/gsc/summary\?property=(?P<property>[^&]+)(?:&days=(?P<days>\d+))?", gsc_summary),
+    ("GET", r"/api/bing/status", bing_status),
+    ("GET", r"/api/bing/sites", bing_sites),
+    ("GET", r"/api/bing/traffic\?site=(?P<site>[^&]+)", bing_traffic),
 ]
 register(LEGACY_ROUTES)
 

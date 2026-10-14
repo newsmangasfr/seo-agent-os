@@ -18,7 +18,8 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # chemins publics (pas de session requise)
 PUBLIC_PATHS = {"/", "/index.html", "/auth.html", "/flow3d.js",
-                "/theme-3d.css", "/app.js", "/styles.css", "/auth.js", "/landing.js"}
+                "/theme-scene.css", "/theme-3d.css", "/app.js", "/styles.css",
+                "/auth.js", "/landing.js"}
 PUBLIC_PREFIXES = ("/assets/", "/api/auth/", "/fonts")
 
 
@@ -64,7 +65,8 @@ class Handler(SimpleHTTPRequestHandler):
 
     # ---------- GET ----------
     def do_GET(self):
-        path = self.path.split("?")[0]
+        full = self.path
+        path = full.split("?")[0]
         if not _is_public(path):
             if not self._current_user():
                 # page HTML -> login ; API -> 401 JSON
@@ -75,7 +77,7 @@ class Handler(SimpleHTTPRequestHandler):
                 return
         if path.startswith("/api/"):
             user = self._current_user()
-            ctx = {"path": path, "method": "GET", "body": {},
+            ctx = {"path": full, "method": "GET", "body": {},
                    "user": user, "token": auth.token_from_headers(self.headers)}
             self._json(handle(ctx))
         else:
