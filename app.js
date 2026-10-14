@@ -376,8 +376,22 @@ function initTilt() {
 
 // ========== BOOT ==========
 document.addEventListener('DOMContentLoaded', async function () {
+    // vérifier la session avant tout
+    const me = await apiGet('/api/auth/me');
+    if (!me.ok) {
+        location.href = '/auth.html';
+        return;
+    }
+    document.getElementById('sidebarUser').textContent =
+        (me.user.display_name || me.user.email) + (me.user.is_admin ? ' · admin' : '');
     loadDashboard();
     loadKeyStatus();
     initTilt();
     console.log('Agent OS — Mission Control 3D Flow Violet prêt.');
 });
+
+async function logout() {
+    if (!confirm('Se déconnecter ?')) return;
+    await apiPost('/api/auth/logout', {});
+    location.href = '/auth.html';
+}

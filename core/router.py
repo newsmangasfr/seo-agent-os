@@ -43,14 +43,17 @@ def routes():
 
 
 def handle(request):
-    """Point d'entrée unique (compatible avec l'ancien backend.handle)."""
+    """Point d'entrée unique (compatible avec l'ancien backend.handle).
+    request peut porter 'user'/'token' (injectés par le serveur) — ils sont
+    fusionnés dans le ctx passé aux handlers."""
     path = request.get("path", "")
     method = request.get("method", "GET").upper()
     body = request.get("body", {}) or {}
+    extra = {k: request[k] for k in ("user", "token") if k in request}
     for route in _registry:
         params = route.match(method, path)
         if params is not None:
-            ctx = {"path": path, "params": params}
+            ctx = {"path": path, "params": params, **extra}
             try:
                 return route.handler(ctx, body)
             except Exception as e:  # une app ne doit jamais tuer le serveur

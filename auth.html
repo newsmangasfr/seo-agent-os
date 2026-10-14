@@ -3,52 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEO Agent OS — Connexion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>Connexion — Agent OS</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="theme-3d.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Inter',sans-serif; height:100vh; display:flex; align-items:center; justify-content:center;
-            background:radial-gradient(800px 400px at 80% -10%, rgba(139,92,246,.15), transparent 60%),
-                       radial-gradient(600px 400px at -10% 110%, rgba(59,130,246,.12), transparent 60%), #07070c; color:#fff; }
-        .box { width:360px; padding:36px; border-radius:20px; background:rgba(20,20,32,.7); border:1px solid rgba(255,255,255,.1); backdrop-filter:blur(20px); }
-        h1 { font-size:18px; margin-bottom:8px; }
-        p { font-size:12.5px; color:rgba(255,255,255,.5); margin-bottom:22px; }
-        input { width:100%; padding:12px 14px; border-radius:10px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.13); color:#fff; font-size:14px; outline:none; }
-        input:focus { border-color:#8b5cf6; }
-        button { width:100%; margin-top:14px; padding:12px; border:none; border-radius:10px; cursor:pointer; font-size:14px; font-weight:600; color:#fff;
-            background:linear-gradient(135deg,#8b5cf6,#6d28d9); box-shadow:0 6px 24px rgba(139,92,246,.35); }
-        .err { color:#ef4444; font-size:12.5px; margin-top:10px; display:none; }
+        body { overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .auth-wrap { position: relative; z-index: 2; width: 100%; max-width: 430px; padding: 20px; }
+        .auth-card {
+            background: linear-gradient(160deg, rgba(30,14,60,.85), rgba(15,6,35,.92));
+            border: 1px solid rgba(168,85,247,.35);
+            border-radius: 22px; padding: 36px 32px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(168,85,247,.25), 0 30px 80px rgba(5,1,15,.8);
+            animation: modalIn .4s cubic-bezier(.2,.9,.3,1.2);
+        }
+        @keyframes modalIn { from { transform: scale(.94) translateY(18px); opacity: 0; } }
+        .auth-logo { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+        .auth-logo b { background: linear-gradient(135deg, var(--neon-violet), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .auth-sub { text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 26px; }
+        .auth-tabs { display: flex; gap: 8px; margin-bottom: 24px; background: rgba(10,4,24,.5); padding: 5px; border-radius: 13px; }
+        .auth-tab { flex: 1; padding: 10px; text-align: center; border-radius: 9px; font-size: 13.5px; font-weight: 700; cursor: pointer; color: var(--text-secondary); transition: all .25s; border: none; background: none; font-family: inherit; }
+        .auth-tab.active { background: linear-gradient(135deg, rgba(168,85,247,.3), rgba(99,102,241,.15)); color: var(--text-primary); box-shadow: inset 0 0 0 1px rgba(168,85,247,.4); }
+        .auth-error { display: none; margin-bottom: 16px; padding: 11px 14px; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); border-radius: 11px; color: #fca5a5; font-size: 13px; }
+        .auth-error.show { display: block; }
+        .auth-btn { width: 100%; margin-top: 8px; padding: 13px; font-size: 14.5px; }
+        .auth-hint { margin-top: 18px; text-align: center; font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+        .auth-hint code { font-family: 'JetBrains Mono', monospace; color: var(--neon-cyan); background: rgba(34,211,238,.08); padding: 1px 6px; border-radius: 5px; }
+        .setup-banner { display: none; margin-bottom: 18px; padding: 12px 15px; background: rgba(52,211,153,.08); border: 1px solid rgba(52,211,153,.3); border-radius: 12px; color: var(--neon-green); font-size: 12.5px; line-height: 1.6; }
+        .setup-banner.show { display: block; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>🔒 SEO Agent OS</h1>
-        <p>Accès protégé — entrez votre mot de passe</p>
-        <input type="password" id="pw" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')login()">
-        <button onclick="login()">Se connecter</button>
-        <p class="err" id="err">Mot de passe incorrect</p>
+    <canvas id="flow3d"></canvas>
+    <div class="bg-veil"></div>
+
+    <div class="auth-wrap">
+        <div class="auth-card">
+            <div class="auth-logo"><span class="logo-orb"></span>Agent <b>OS</b></div>
+            <p class="auth-sub" id="authSub">Connecte-toi à ton cockpit IA</p>
+
+            <div class="setup-banner" id="setupBanner">
+                Premier lancement : aucun compte n existe pas encore. Cree le tien, il sera administrateur.
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Connexion</button>
+                <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Creer un compte</button>
+            </div>
+
+            <div class="auth-error" id="authError"></div>
+
+            <form id="loginForm" onsubmit="doLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="toi@exemple.com" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="loginPass" placeholder="mot de passe" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn-primary auth-btn">Se connecter</button>
+            </form>
+
+            <form id="registerForm" style="display:none" onsubmit="doRegister(event)">
+                <div class="form-group">
+                    <label>Nom affiche</label>
+                    <input type="text" id="regName" placeholder="Farid">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="toi@exemple.com" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe (8 caracteres min.)</label>
+                    <input type="password" id="regPass" placeholder="mot de passe" autocomplete="new-password" required minlength="8">
+                </div>
+                <div class="form-group">
+                    <label>Confirmer le mot de passe</label>
+                    <input type="password" id="regPass2" placeholder="mot de passe" autocomplete="new-password" required minlength="8">
+                </div>
+                <button type="submit" class="btn-primary auth-btn">Creer mon compte</button>
+            </form>
+
+            <p class="auth-hint">
+                Session securisee par cookie <code>HttpOnly</code> - mot de passe hache <code>PBKDF2</code><br>
+                Tes cles API restent sur le serveur, jamais dans le navigateur.
+            </p>
+        </div>
     </div>
-    <script>
-        async function login() {
-            const r = await fetch('/auth', {
-                method: 'POST',
-                body: 'password=' + encodeURIComponent(document.getElementById('pw').value),
-                redirect: 'manual'   // ne suit pas la 302 : on lit la réponse brute
-            });
-            // 302 = succès (location /dashboard.html) — le cookie est déjà posé par le navigateur
-            if (r.status === 302 || r.status === 0 || r.redirected) {
-                location.href = '/dashboard.html';
-                return;
-            }
-            // 200 = json {ok:false} → mauvais mot de passe
-            try {
-                const j = await r.json();
-                document.getElementById('err').style.display = j.ok ? 'none' : 'block';
-            } catch (e) {
-                // réponse non-JSON (page protégée renvoyée) → considérer comme succès
-                location.href = '/dashboard.html';
-            }
-        }
-    </script>
+
+    <script src="flow3d.js"></script>
+    <script src="auth.js"></script>
 </body>
 </html>

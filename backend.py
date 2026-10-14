@@ -16,6 +16,7 @@ KEYS_FILE = os.path.join(BASE_DIR, "api_keys.json")
 
 # les apps s'enregistrent au import
 import apps  # noqa: E402,F401
+import apps.auth  # noqa: E402,F401  (routes /api/auth/*)
 from apps import wordpress  # noqa: E402
 
 

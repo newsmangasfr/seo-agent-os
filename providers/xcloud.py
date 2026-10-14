@@ -114,7 +114,8 @@ def server_plans():
 
 def deploy_docker(uuid, name, domain, repository_url, branch="main",
                   container_port=8000, host_port=8000, env_content=None,
-                  compose_file="docker-compose.yml", dry_run=True):
+                  compose_file="docker-compose.yml", dry_run=True,
+                  staging=False):
     """POST /servers/{uuid}/sites/git/docker — déploie une app conteneurisée.
 
     C'est LA voie pour l'Agent OS (Python stdlib + SQLite, pas de stack natif).
@@ -122,13 +123,17 @@ def deploy_docker(uuid, name, domain, repository_url, branch="main",
     - container_port : port exposé par le conteneur (8000 pour server.py)
     - host_port : port publié sur l'hôte (1024-65535)
     - env_content : contenu du .env à écrire côté serveur (mode dégradé si None)
+    - staging=True : domaine de démo xCloud (sous-domaine *.xc1.app auto,
+      aucun DNS à configurer). staging=False : domaine live (A record requis).
     - dry_run=True par défaut : 200 + would_create, ne crée rien.
     Retourne (ok, data, message)."""
     payload = {
-        "site_type": "custom",  # docker endpoint : type implicite
         "name": name,
         "repository": {"url": repository_url, "branch": branch},
-        "domain": {"mode": "live", "name": domain},
+        "domain": {
+            "mode": "staging" if staging else "live",
+            "name": name if staging else domain,
+        },
         "port": host_port,
         "docker": {
             "mode": "compose",
@@ -137,6 +142,8 @@ def deploy_docker(uuid, name, domain, repository_url, branch="main",
         },
         "dry_run": bool(dry_run),
     }
+    if not staging and domain:
+        payload["domain"]["name"] = domain
     if env_content:
         payload["env_file_content"] = env_content
     st, resp = _post(f"/servers/{uuid}/sites/git/docker", data=payload)
