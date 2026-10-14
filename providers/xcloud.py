@@ -240,8 +240,9 @@ def update_site(site_uuid, branch="main"):
     Le site n'est PAS supprimé -> le volume Docker persistant (compte,
     sites, clés) survit. C'est LA méthode à utiliser pour les MAJ de code.
     Retourne (ok, message)."""
-    st, resp = _request("PUT", f"/sites/{site_uuid}/deploy-config",
-                        data={"git_branch": branch}, timeout=60)
+    from core import http
+    st, resp = http.request("PUT", f"{BASE_URL}/sites/{site_uuid}/deploy-config",
+                            headers=_auth(), data={"git_branch": branch}, timeout=60)
     if st not in (200, 202):
         return False, f"deploy-config HTTP {st}: {str(resp)[:150]}"
     ok, data, msg = redeploy(site_uuid)
