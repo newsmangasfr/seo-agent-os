@@ -233,6 +233,21 @@ def wait_site_ready(site_uuid, timeout_s=900, interval=15):
     return False, {"error": "timeout", "last": last}
 
 
+def update_site(site_uuid, branch="main"):
+    """Mise à jour SANS PERTE : force un re-clone du dépôt puis redéploie.
+    - PUT /deploy-config {git_branch} re-clone le repo (prend le dernier commit)
+    - POST /git/deploy relance le build
+    Le site n'est PAS supprimé -> le volume Docker persistant (compte,
+    sites, clés) survit. C'est LA méthode à utiliser pour les MAJ de code.
+    Retourne (ok, message)."""
+    st, resp = _request("PUT", f"/sites/{site_uuid}/deploy-config",
+                        data={"git_branch": branch}, timeout=60)
+    if st not in (200, 202):
+        return False, f"deploy-config HTTP {st}: {str(resp)[:150]}"
+    ok, data, msg = redeploy(site_uuid)
+    return ok, msg
+
+
 # ---------- Résumé pour l'UI ----------
 
 def summary():
