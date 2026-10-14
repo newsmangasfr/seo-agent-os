@@ -11,12 +11,13 @@ import os
 from core import db, router
 from core.router import register
 
-BASE_DIR = db.BASE_DIR
-KEYS_FILE = os.path.join(BASE_DIR, "api_keys.json")
+from core.paths import BASE_DIR
+KEYS_FILE = __import__("core.paths", fromlist=["KEYS_FILE"]).KEYS_FILE
 
 # les apps s'enregistrent au import
 import apps  # noqa: E402,F401
 import apps.auth  # noqa: E402,F401  (routes /api/auth/*)
+import apps.tools  # noqa: E402,F401  (routes /api/tools/*)
 from apps import wordpress  # noqa: E402
 
 

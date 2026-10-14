@@ -100,8 +100,10 @@ class Handler(SimpleHTTPRequestHandler):
                    "user": user, "token": auth.token_from_headers(self.headers)}
             result = handle(ctx)
             headers = []
+            is_https = self.headers.get("X-Forwarded-Proto", "").lower() == "https" or \
+                       (self.headers.get("Host", "").startswith("agentos"))
             if result.get("ok") and result.get("token"):
-                headers.append(("Set-Cookie", auth.session_cookie_header(result["token"])))
+                headers.append(("Set-Cookie", auth.session_cookie_header(result["token"], is_https)))
                 result.pop("token", None)  # le token reste dans le cookie
             elif path.endswith("/logout"):
                 headers.append(("Set-Cookie", auth.clear_cookie_header()))

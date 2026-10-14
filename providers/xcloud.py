@@ -18,7 +18,7 @@ import os
 from core import http
 
 BASE_URL = "https://app.xcloud.host/api/v1"
-KEYS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "api_keys.json")
+from core.paths import KEYS_FILE
 
 
 def get_token():

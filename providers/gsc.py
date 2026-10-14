@@ -26,7 +26,7 @@ import urllib.parse
 
 from core import http
 
-KEYS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "api_keys.json")
+from core.paths import KEYS_FILE
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 SCOPE = "https://www.googleapis.com/auth/webmasters.readonly"
 API_BASE = "https://searchconsole.googleapis.com/webmasters/v3"

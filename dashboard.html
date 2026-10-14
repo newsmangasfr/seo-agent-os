@@ -151,7 +151,10 @@
                             </div>
                             <div class="form-group">
                                 <label>Mots-clés (séparés par des virgules)</label>
-                                <input type="text" id="studioKeywords" placeholder="one piece 1140, date sortie one piece, scan one piece">
+                                <div style="display:flex;gap:8px;">
+                                    <input type="text" id="studioKeywords" placeholder="one piece 1140, date sortie one piece, scan one piece" style="flex:1;">
+                                    <button type="button" class="btn-secondary" style="white-space:nowrap;padding:11px 14px;" onclick="researchKeywords()" title="Chercher des mots-clés Google">🔍</button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Longueur</label>

@@ -14,7 +14,7 @@ import os
 
 from core import http
 
-KEYS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "api_keys.json")
+from core.paths import KEYS_FILE
 BASE_URL = "https://ssl.bing.com/webmaster/api.svc/json"
 
 

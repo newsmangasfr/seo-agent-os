@@ -8,11 +8,12 @@ Clé API lue dans api_keys.json (clé 'openrouter') ou $OPENROUTER_API_KEY.
 import os
 
 from core import http
-from core.db import BASE_DIR
+from core.paths import KEYS_FILE as _KF
+from core.paths import BASE_DIR
 
 import json
 
-KEYS_FILE = os.path.join(BASE_DIR, "api_keys.json")
+KEYS_FILE = _KF
 BASE_URL = "https://openrouter.ai/api/v1"
 
 # Modèles gratuits vérifiés via /api/v1/models (oct. 2026) et TESTÉS pour

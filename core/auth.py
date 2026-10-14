@@ -124,8 +124,10 @@ def user_count():
 
 # ---------- cookies ----------
 
-def session_cookie_header(token):
-    """Cookie HttpOnly, SameSite=Lax, Secure quand HTTPS."""
+def session_cookie_header(token, is_https=True):
+    """Cookie HttpOnly, SameSite=Lax, Secure uniquement en HTTPS.
+    is_https=False (dev local en HTTP) -> pas de Secure, sinon le cookie
+    serait rejeté par le navigateur/curl sur http://localhost."""
     parts = [
         f"{SESSION_COOKIE}={token}",
         "Path=/",
@@ -133,8 +135,9 @@ def session_cookie_header(token):
         "SameSite=Lax",
         f"Max-Age={SESSION_TTL}",
     ]
-    # Secure uniquement si le site est servi en HTTPS (xCloud staging est https)
-    if os.environ.get("AOS_FORCE_HTTPS", "1") == "1":
+    # Secure seulement si servi en HTTPS (xCloud staging = https).
+    # Forçable via AOS_FORCE_HTTPS=1 (prod) ; auto-désactivé en HTTP.
+    if is_https or os.environ.get("AOS_FORCE_HTTPS") == "1":
         parts.append("Secure")
     return "; ".join(parts)
 

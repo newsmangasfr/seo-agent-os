@@ -108,6 +108,55 @@ function studioBusy(label) {
         `<div class="studio-placeholder"><div class="spinner"></div><p>${label}…</p></div>`;
 }
 
+// ========== STUDIO : RECHERCHE MOTS-CLES (Google, gratuit) ==========
+async function researchKeywords() {
+    const topic = document.getElementById('studioTopic').value.trim();
+    if (!topic) { alert('Renseigne d\'abord un sujet.'); return; }
+    const keywords = document.getElementById('studioKeywords').value.trim();
+    const btn = event.target;
+    btn.disabled = true; btn.textContent = '⏳';
+    try {
+        const res = await apiPost('/api/tools/keywords', { topic, keywords });
+        if (res.ok) {
+            renderKeywordPanel(res.data);
+        } else {
+            alert('Erreur : ' + (res.error || 'inconnue'));
+        }
+    } catch (e) {
+        alert('Erreur réseau : ' + e.message);
+    } finally {
+        btn.disabled = false; btn.textContent = '🔍';
+    }
+}
+
+function renderKeywordPanel(data) {
+    // retire un ancien panneau s'il existe
+    const old = document.getElementById('kwPanel');
+    if (old) old.remove();
+    const sugg = (data.suggestions || []).map(k =>
+        `<span class="kw-chip" onclick="addKeyword('${k.replace(/'/g, "\\'")}')" title="Cliquer pour ajouter">${esc(k)}</span>`).join('');
+    const questions = (data.questions || []).length
+        ? `<div class="kw-questions"><strong>Questions :</strong> ${data.questions.map(esc).join(' · ')}</div>` : '';
+    const panel = document.createElement('div');
+    panel.id = 'kwPanel';
+    panel.className = 'kw-panel';
+    panel.innerHTML = `
+        <div class="kw-head">
+            <strong>🔍 ${data.count} mots-clés Google</strong>
+            <button class="kw-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+        <div class="kw-chips">${sugg || '<em>aucune suggestion</em>'}</div>
+        ${questions}
+        <div class="kw-hint">Clique un mot-clé pour l'ajouter au champ.</div>`;
+    document.querySelector('.studio-form').appendChild(panel);
+}
+
+function addKeyword(kw) {
+    const field = document.getElementById('studioKeywords');
+    const current = field.value.trim();
+    field.value = current ? current + ', ' + kw : kw;
+}
+
 async function studioGenerate() {
     const payload = studioPayload();
     if (!payload.site_id || !payload.topic) { alert('Site et sujet obligatoires'); return; }
