@@ -414,7 +414,7 @@ function initTilt() {
             // reflet dynamique
             card.style.background =
                 `radial-gradient(600px circle at ${e.clientX - r.left}px ${e.clientY - r.top}px, ` +
-                `rgba(239,0,44,0.10), transparent 45%), var(--bg-card)`;
+                `rgba(70,183,255,0.10), transparent 45%), var(--bg-card)`;
         });
         card.addEventListener('mouseleave', () => {
             card.style.transform = '';

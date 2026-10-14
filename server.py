@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # chemins publics (pas de session requise)
 PUBLIC_PATHS = {"/", "/index.html", "/auth.html", "/flow3d.js",
-                "/theme-scene.css", "/theme-3d.css", "/app.js", "/styles.css",
+                "/theme-tide.css", "/theme-scene.css", "/theme-3d.css", "/app.js", "/styles.css",
                 "/auth.js", "/landing.js"}
 PUBLIC_PREFIXES = ("/assets/", "/api/auth/", "/fonts")
 

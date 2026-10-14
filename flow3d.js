@@ -7,10 +7,10 @@
 const Flow3D = (() => {
 
     const COLORS = [
-        [239, 0, 44],     // rouge vif (accent sceneai)
-        [255, 85, 125],   // rose
-        [255, 87, 196],   // pink
-        [255, 145, 0],    // orange (accent secondaire)
+        [70, 183, 255],   // tide bleu océan
+        [139, 243, 230],  // tide-light aigue-marine
+        [46, 125, 255],   // tide-deep bleu profond
+        [124, 147, 255],  // tide-mist indigo
     ];
 
     let canvas, ctx, W, H, dpr;
@@ -65,9 +65,9 @@ const Flow3D = (() => {
             if (y > H + 20) continue;
             const alpha = 0.05 + p * 0.1;
             const grad = ctx.createLinearGradient(0, y, W, y);
-            grad.addColorStop(0, 'rgba(239,0,44,0)');
-            grad.addColorStop(0.5, `rgba(239,0,44,${alpha})`);
-            grad.addColorStop(1, 'rgba(239,0,44,0)');
+            grad.addColorStop(0, 'rgba(70,183,255,0)');
+            grad.addColorStop(0.5, `rgba(70,183,255,${alpha})`);
+            grad.addColorStop(1, 'rgba(70,183,255,0)');
             ctx.strokeStyle = grad;
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -81,7 +81,7 @@ const Flow3D = (() => {
         for (let i = -8; i <= 8; i++) {
             const xBottom = cx + i * (W / 7);
             const alpha = 0.04 + (1 - Math.abs(i) / 8) * 0.07;
-            ctx.strokeStyle = `rgba(255,87,196,${alpha})`;
+            ctx.strokeStyle = `rgba(46,125,255,${alpha})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(xBottom, H);
@@ -91,8 +91,8 @@ const Flow3D = (() => {
 
         // halo d'horizon
         const halo = ctx.createLinearGradient(0, horizon - 60, 0, horizon + 10);
-        halo.addColorStop(0, 'rgba(239,0,44,0)');
-        halo.addColorStop(1, 'rgba(239,0,44,0.06)');
+        halo.addColorStop(0, 'rgba(70,183,255,0)');
+        halo.addColorStop(1, 'rgba(70,183,255,0.06)');
         ctx.fillStyle = halo;
         ctx.fillRect(0, horizon - 60, W, 70);
 
@@ -153,8 +153,8 @@ const Flow3D = (() => {
     // ---- orbes de lumière flottantes (gros flous violets) ----
     function drawOrbs(t) {
         const orbs = [
-            { x: W * 0.82, y: H * 0.18, r: 220, c: '239,0,44', sp: 0.00012 },
-            { x: W * 0.15, y: H * 0.75, r: 260, c: '255,87,196', sp: 0.00009 },
+            { x: W * 0.82, y: H * 0.18, r: 220, c: '70,183,255', sp: 0.00012 },
+            { x: W * 0.15, y: H * 0.75, r: 260, c: '46,125,255', sp: 0.00009 },
             { x: W * 0.55, y: H * 0.45, r: 180, c: '217,70,239', sp: 0.00015 },
         ];
         for (const o of orbs) {
@@ -177,9 +177,9 @@ const Flow3D = (() => {
 
         // fond dégradé profond
         const bg = ctx.createLinearGradient(0, 0, 0, H);
-        bg.addColorStop(0, '#0a0a0b');
-        bg.addColorStop(0.6, '#08080a');
-        bg.addColorStop(1, '#0a0a0b');
+        bg.addColorStop(0, '#0b0d10');
+        bg.addColorStop(0.6, '#0b0d10');
+        bg.addColorStop(1, '#0b0d10');
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, W, H);
 
