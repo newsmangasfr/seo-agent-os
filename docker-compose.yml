@@ -5,15 +5,10 @@ services:
     build: .
     container_name: agent-os
     restart: unless-stopped
+    # Port publié UNIQUEMENT sur localhost — xCloud proxifie via nginx.
+    # (ne jamais binder 0.0.0.0 : contournerait le firewall du serveur)
     ports:
-      - "8000:8000"
-    volumes:
-      # persistance SQLite + clés API hors de l'image
-      - agentos-data:/app/data
-      - ./api_keys.json:/app/api_keys.json:ro
+      - "127.0.0.1:8000:8000"
     environment:
       - PORT=8000
       - DASH_PASSWORD=${DASH_PASSWORD:-}
-
-volumes:
-  agentos-data:
