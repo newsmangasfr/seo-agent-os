@@ -104,6 +104,51 @@ def get_stats(ctx, body):
     return {"ok": True, "sites": sites, "articles": arts, "published": published}
 
 
+def _require_admin(ctx):
+    user = ctx.get("user")
+    if not user or not user.get("is_admin"):
+        return False
+    return True
+
+
+def export_db(ctx, body):
+    """GET /api/admin/export-db — exporte la base SQLite en base64 (admin only)."""
+    if not _require_admin(ctx):
+        return {"ok": False, "error": "réservé à l'admin"}
+    import base64
+    from core.paths import DB_PATH
+    if not os.path.exists(DB_PATH):
+        return {"ok": False, "error": "base introuvable"}
+    with open(DB_PATH, "rb") as f:
+        return {"ok": True, "db_base64": base64.b64encode(f.read()).decode()}
+
+
+def import_db(ctx, body):
+    """POST /api/admin/import-db — restaure la base depuis base64 (admin only).
+    Écrase la base courante. Utilisé par deploy_helper pour la persistance."""
+    if not _require_admin(ctx):
+        return {"ok": False, "error": "réservé à l'admin"}
+    import base64
+    from core.paths import DB_PATH
+    b64 = body.get("db_base64", "")
+    if not b64:
+        return {"ok": False, "error": "db_base64 requis"}
+    try:
+        raw = base64.b64decode(b64)
+    except Exception:
+        return {"ok": False, "error": "base64 invalide"}
+    # fermer la connexion SQLite courante avant d'écraser le fichier
+    try:
+        db.db().close()
+    except Exception:
+        pass
+    import core.db as _db
+    _db._conn = None
+    with open(DB_PATH, "wb") as f:
+        f.write(raw)
+    return {"ok": True, "bytes": len(raw)}
+
+
 def xcloud_status(ctx, body):
     from providers import xcloud
     return xcloud.summary()
@@ -221,6 +266,8 @@ LEGACY_ROUTES = [
     ("POST", r"/api/keys", save_api_keys),
     ("GET", r"/api/keys", get_keys_status),
     ("GET", r"/api/stats", get_stats),
+    ("GET", r"/api/admin/export-db", export_db),
+    ("POST", r"/api/admin/import-db", import_db),
     ("GET", r"/api/xcloud/status", xcloud_status),
     ("GET", r"/api/xcloud/servers", xcloud_servers),
     ("GET", r"/api/xcloud/sites", xcloud_sites),
