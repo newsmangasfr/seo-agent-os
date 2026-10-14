@@ -2,19 +2,25 @@ version: "3.8"
 
 services:
   agent-os:
-    build: .
+    image: python:3.11-slim
     container_name: agent-os
     restart: unless-stopped
-    # Port publié UNIQUEMENT sur localhost — xCloud proxifie via nginx.
+    working_dir: /app
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
-      # Données persistantes (SQLite + clés API) — volume nommé Docker.
+      # CODE monté depuis l'hôte : un git pull met à jour l'app
+      # SANS rebuild d'image ni suppression du site (volume data survit).
+      - /home/u_agentos/files:/app:ro
+      # Données persistantes (SQLite + clés API) sur volume nommé.
       - agentos-data:/data
     environment:
       - PORT=8000
       - AGENTOS_DATA_DIR=/data
       - DASH_PASSWORD=${DASH_PASSWORD:-}
+    command: >
+      sh -c "pip install --no-cache-dir -r /app/requirements.txt 2>/dev/null || true;
+             python /app/server.py"
 
 volumes:
   agentos-data:
